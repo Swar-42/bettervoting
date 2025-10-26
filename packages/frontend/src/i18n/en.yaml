@@ -1094,6 +1094,17 @@ admin_home:
     title: Confirm Duplicate Election
     message: Are you sure you wish to duplicate this election?
 
+  access_voting_link_confirm:
+    title: ⚠️ Confirm Manual Link Access ⚠️
+    message: | 
+      You are about to view and copy this voter's **unique and secret** voting link.
+      This action bypasses the standard, secure email invitation process. Only proceed if the voter has explicitly confirmed they are unable to receive their voting link via email.
+      This action will be permanently recorded in the election audit log.
+      
+      **Are you sure you want to proceed?**
+    submit: Yes, Copy Secret Link
+
+
   copied_title: Copy of {{title}}
 
 # Admin Home -> Edit Title

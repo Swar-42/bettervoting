@@ -7,6 +7,7 @@ import PermissionHandler from "../../PermissionHandler";
 import { useApproveRoll, useFlagRoll, useInvalidateRoll, useSendEmails, useUnflagRoll } from "../../../hooks/useAPI";
 import { getLocalTimeZoneShort } from "../../util";
 import useElection from "../../ElectionContextProvider";
+import useConfirm from "../../ConfirmationDialogProvider"
 import useFeatureFlags from "../../FeatureFlagContextProvider";
 import { ElectionRoll } from "@equal-vote/star-vote-shared/domain_model/ElectionRoll";
 import SendEmailDialog from "./SendEmailDialog";
@@ -30,6 +31,8 @@ const EditElectionRoll = ({ roll, onClose, fetchRolls }:Props) => {
     const invalidate = useInvalidateRoll(election.election_id)
     const sendEmails = useSendEmails(election.election_id)
     const { setSnack } = useSnackbar();
+
+    const confirm = useConfirm()
 
     const onApprove = async () => {
         if (!await approve.makeRequest({ electionRollEntry: roll })) { return }
@@ -66,6 +69,22 @@ const EditElectionRoll = ({ roll, onClose, fetchRolls }:Props) => {
         })) return; 
 
         await fetchRolls()
+    }
+    const onManualAccessVotingLink = async () => {
+        const confirmed = await confirm(t('admin_home.access_voting_link_confirm'));
+        if (!confirmed) return;
+        try {
+            navigator.clipboard.writeText(window.location.origin+'/'+election.election_id+'/id/'+roll.voter_id)
+            setSnack({
+                message: 'Unique URL Copied!',
+                severity: 'success',
+                open: true,
+                autoHideDuration: 6000,
+        })
+        } catch (err) {
+            console.error(err)
+        }
+        
     }
 
     return (
@@ -123,15 +142,7 @@ const EditElectionRoll = ({ roll, onClose, fetchRolls }:Props) => {
                             </PermissionHandler>
                         </Grid>
                         <Grid item sm={4} sx={{py:1}}>
-                            <SecondaryButton sx={{ml: 0}} onClick={() => {
-                                    navigator.clipboard.writeText(window.location.origin+'/'+election.election_id+'/id/'+roll.voter_id)
-                                    setSnack({
-                                        message: 'Unique URL Copied!',
-                                        severity: 'success',
-                                        open: true,
-                                        autoHideDuration: 6000,
-                                    })
-                                }}
+                            <SecondaryButton sx={{ml: 0}} onClick={() => onManualAccessVotingLink()}
                             > Copy Unique Voting URL </SecondaryButton >
                         </Grid>
                         <Typography component='p'>(action will be captured in audit log)</Typography>
